@@ -114,5 +114,4 @@ Berdasarkan hasil wawancara, kebutuhan pengguna terhadap aplikasi CBT Offline me
 
 4. Rancangan Halaman Detail Ujian (Sudah Download) & Halaman Input Token
 
-
-
+<img src="detail ujian sudah download - token ujian.gif" width="250">

@@ -19,11 +19,11 @@ export default function VerificationScreen() {
 
     const timer = setTimeout(() => {
       const valid = nisn === '2488010000' && password === 'siswa123';
-      if (valid) {
-        router.replace('/dashboard');
-      } else {
-        router.replace('/login-error');
-      }
+    if (valid) {
+      router.replace('/dashboard');
+    } else {
+      router.replace('/login-error');
+    }
     }, 2200);
 
     return () => clearTimeout(timer);

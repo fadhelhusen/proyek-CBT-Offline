@@ -38,9 +38,11 @@ Aldo:
 Naula:
 1. Accept invitation
 2. Bukti konfirmasi
+![alt text](<bukti accept invitation.png>)
 
 3. Clone proyek
 4. Bukti konfirmasi
+![alt text](<bukti git clone.png>)
 
 
 Irfan:
@@ -77,6 +79,12 @@ Fadli:
 Aldo:
 
 Naula :
+* Tema :
+    1. Sistem Informasi Pemesanan dan Manajemen Warung CHICKEN KATSUGIH
+    2. Sistem Informasi Pengelolaan Penitipan Hewan
+* Target :
+    1. Pelaku usaha Warung CHICKEN KATSUGIH
+    2. Pelaku usaha Penitipan Hewan
 
 Irfan :
 

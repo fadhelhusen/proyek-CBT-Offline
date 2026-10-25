@@ -1,98 +1,75 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, StatusBar, Animated } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function SplashScreenPage() {
+  const progress = useRef(new Animated.Value(0)).current;
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 2500,
+      useNativeDriver: false,
+    }).start();
+
+    const timer = setTimeout(() => {
+      router.replace('/login');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [progress]);
+
+  const progressWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      {/* Latar Belakang Gradient Abstrak */}
+      <View style={StyleSheet.absoluteFill}>
+        <View style={styles.bgLight} />
+        <View style={styles.blob1} />
+        <View style={styles.blob2} />
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <View style={styles.content}>
+        <View style={styles.logoContainer}>
+          <LinearGradient colors={['#2575FC', '#4A90E2']} style={styles.logo}>
+            <Ionicons name="cube" size={40} color="#FFFFFF" />
+          </LinearGradient>
+        </View>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Text style={styles.title}>EduCBT</Text>
+        <Text style={styles.subtitle}>Ujian Aman, Hasil Nyaman</Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <View style={styles.progressTrack}>
+          <Animated.View style={[styles.progressBar, { width: progressWidth }]}>
+            <LinearGradient colors={['#2575FC', '#51D7F5']} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} />
+          </Animated.View>
+        </View>
+
+        <Text style={styles.loadingText}>Loading secure environment...</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  container: { flex: 1, justifyContent: 'center', backgroundColor: '#F4F7FB' },
+  bgLight: { ...StyleSheet.absoluteFillObject, backgroundColor: '#F8FAFC' },
+  blob1: { position: 'absolute', top: -100, left: -50, width: 300, height: 300, borderRadius: 150, backgroundColor: '#DDEBFF', opacity: 0.7 },
+  blob2: { position: 'absolute', top: 150, right: -100, width: 250, height: 250, borderRadius: 125, backgroundColor: '#E5F2FF', opacity: 0.7 },
+  content: { alignItems: 'center', paddingHorizontal: 24, zIndex: 1 },
+  logoContainer: { shadowColor: '#2575FC', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
+  logo: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
+  title: { fontFamily: 'Inter_700Bold', fontWeight: 'bold', fontSize: 28, color: '#0F172A', marginTop: 24 },
+  subtitle: { fontFamily: 'Inter_400Regular', fontSize: 12, color: '#64748B', marginTop: 4 },
+  progressTrack: { width: 160, height: 6, backgroundColor: '#E2E8F0', borderRadius: 10, marginTop: 40, overflow: 'hidden' },
+  progressBar: { height: '100%', borderRadius: 10 },
+  loadingText: { fontFamily: 'Inter_400Regular', fontSize: 10, color: '#94A3B8', marginTop: 12 },
 });

@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack.Screen name="verification" />
       <Stack.Screen name="login-error" />
       <Stack.Screen name="dashboard" />
+      <Stack.Screen name="token-ujian" />
     </Stack>
   );
 }

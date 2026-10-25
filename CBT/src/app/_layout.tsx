@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from 'react-native';
 
@@ -12,7 +12,14 @@ export default function TabLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
-      <AppTabs />
+      
+      {/* Gunakan Stack sementara agar detail-ujian bisa diakses */}
+      <Stack>
+        <Stack.Screen name="index" options={{ title: 'Home' }} />
+        <Stack.Screen name="detail-ujian" options={{ title: 'Detail Ujian' }} />
+      </Stack>
+      
+      {/* <AppTabs /> (Komen sementara waktu selama kamu mengerjakan UI) */}
     </ThemeProvider>
   );
 }

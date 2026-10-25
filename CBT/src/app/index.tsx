@@ -1,3 +1,8 @@
+import HomeDashboard from './home-dashboard';
+
+export default function Index() {
+  return <HomeDashboard />;
+}
 import { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, StatusBar, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';

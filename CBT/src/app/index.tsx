@@ -1,5 +1,6 @@
-import HomeDashboard from './home-dashboard';
+// src/app/index.tsx — pintu masuk aplikasi: selalu mulai dari splash
+import { Redirect } from 'expo-router';
 
 export default function Index() {
-  return <HomeDashboard />;
+  return <Redirect href="/splash" />;
 }

@@ -126,7 +126,7 @@ type NavItem = {
 
 // Ubah label / route di sini sesuai struktur project Anda.
 export const NAV_ITEMS: NavItem[] = [
-  { key: 'home', label: 'Home', route: 'index', Icon: HomeIcon },
+  { key: 'home', label: 'Home', route: 'home-dashboard', Icon: HomeIcon },
   { key: 'ujian', label: 'Ujian', route: 'ujian-list', Icon: ExamIcon },
   { key: 'tugas', label: 'Tugas', route: 'tugas', Icon: TaskIcon },
   { key: 'nilai', label: 'Nilai', route: 'nilai', Icon: ChartIcon },

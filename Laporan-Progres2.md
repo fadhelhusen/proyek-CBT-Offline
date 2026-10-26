@@ -104,7 +104,7 @@ Berdasarkan hasil wawancara, kebutuhan pengguna terhadap aplikasi CBT Offline me
 <img src="iPhone-14-PRO-localhost--i-bb5zz2kg41_.gif" width="250">
 
 2. Rancangan Halaman Dashboard
-
+<img src="iPhone-14-PRO-localhost-xatyh05x09sel9.gif" width="250">
 
 
 3. Rancangan Halaman Detail Ujian (belum download)

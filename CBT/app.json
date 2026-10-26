@@ -24,6 +24,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+<<<<<<< HEAD
       "expo-router",
       [
         "expo-splash-screen",
@@ -35,6 +36,18 @@
       ],
       "expo-font"
     ],
+=======
+  "expo-router",
+  [
+    "expo-splash-screen",
+    {
+      "backgroundColor": "#208AEF",
+      "image": "./assets/images/splash-icon.png",
+      "imageWidth": 76
+    }
+  ]
+],
+>>>>>>> c4ac24b35c0d0d83aa91b091a673391e87088d6f
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

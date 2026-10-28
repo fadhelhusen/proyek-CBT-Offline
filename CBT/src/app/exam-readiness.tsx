@@ -1,4 +1,3 @@
-
 import {
   Pressable,
   SafeAreaView,
@@ -33,7 +32,7 @@ export default function ExamReadinessScreen() {
   const router = useRouter();
 
   const handleContinue = () => {
-    router.push('/exam-lock-timeline');
+    router.push('../exam-lock-timeline');
   };
 
   return (

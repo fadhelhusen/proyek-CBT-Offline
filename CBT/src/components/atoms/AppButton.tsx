@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Pressable,
@@ -7,7 +6,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppText from './AppText';
+import AppText from '../atoms/AppText';
 
 type AppButtonProps = {
   title: string;

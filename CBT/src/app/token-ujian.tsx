@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -11,10 +10,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-import AppText from '@/components/atoms/AppText';
-import AppButton from '@/components/atoms/AppButton';
-import AppCard from '@/components/atoms/AppCard';
-import TokenCodeInput from '@/components/molecules/TokenCodeInput';
+import AppText from '../components/atoms/AppText';
+import AppButton from '../components/atoms/AppButton';
+import AppCard from '../components/atoms/AppCard';
+import TokenCodeInput from '../components/Molecules/TokenCodeInput';
+
 
 export default function TokenUjianScreen() {
   const router = useRouter();

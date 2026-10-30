@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" />
       
       <View style={StyleSheet.absoluteFill}>
         <View style={styles.bgLight} />
@@ -86,7 +86,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1, zIndex: 1 },
   safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
-  bgLight: { ...StyleSheet.absoluteFillObject, backgroundColor: '#F8FAFC' },
+  bgLight: { ...StyleSheet.absoluteFill, backgroundColor: '#F8FAFC' },
   blob1: { position: 'absolute', top: -50, left: -100, width: 350, height: 350, borderRadius: 175, backgroundColor: '#DDEBFF', opacity: 0.6 },
   blob2: { position: 'absolute', top: 200, right: -100, width: 300, height: 300, borderRadius: 150, backgroundColor: '#E5F2FF', opacity: 0.6 },
   scrollContent: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 40 },

@@ -6,7 +6,10 @@
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/ui": "~58.0.23",
     "@expo/vector-icons": "^15.0.2",
+<<<<<<< HEAD
+=======
     "@react-navigation/native": "^7.5.1",
+>>>>>>> c4ac24b35c0d0d83aa91b091a673391e87088d6f
     "expo": "~58.0.19",
     "expo-constants": "~58.0.13",
     "expo-device": "~58.0.5",

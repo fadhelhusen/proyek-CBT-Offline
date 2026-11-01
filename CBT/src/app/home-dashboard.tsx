@@ -3,7 +3,8 @@ import { View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import Svg, { Circle, ClipPath, Defs, FeBlend, FeColorMatrix, FeFlood, FeGaussianBlur, FeOffset, Filter, G, Image, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 // Aset avatar diekstrak 1:1 dari <image> base64 di SVG (1792x2368 PNG, tanpa kompresi ulang)
-const avatarImg = require('./assets/home-avatar.png');
+// const avatarImg = require('./assets/home-avatar.png');
+const avatarImg = require('../../assets/home-avatar.png');
 
 // Ukuran desain asli dari SVG (frame 390 x 844)
 const DESIGN_W = 390;

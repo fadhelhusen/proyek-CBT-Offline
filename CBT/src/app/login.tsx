@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Sesuaikan path import dengan struktur folder Anda
+// (nama file harus persis sama huruf besar/kecilnya: card.tsx -> '@/components/card')
 import { Card } from '@/components/Card';
 import { InputField } from '@/components/InputField';
 import { GradientButton } from '@/components/GradientButton';
@@ -86,7 +87,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1, zIndex: 1 },
   safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
-  bgLight: { ...StyleSheet.absoluteFill, backgroundColor: '#F8FAFC' },
+  bgLight: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#F8FAFC' },
   blob1: { position: 'absolute', top: -50, left: -100, width: 350, height: 350, borderRadius: 175, backgroundColor: '#DDEBFF', opacity: 0.6 },
   blob2: { position: 'absolute', top: 200, right: -100, width: 300, height: 300, borderRadius: 150, backgroundColor: '#E5F2FF', opacity: 0.6 },
   scrollContent: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 40 },

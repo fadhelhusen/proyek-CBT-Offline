@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Card } from '@/components/card';
+import { Card } from '@/components/Card';
 
 export default function VerificationScreen() {
   const { nisn, password } = useLocalSearchParams<{ nisn: string; password: string; }>();

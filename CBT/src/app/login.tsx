@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Sesuaikan path import dengan struktur folder Anda
 // (nama file harus persis sama huruf besar/kecilnya: card.tsx -> '@/components/card')
-import { Card } from '@/components/card';
+import { Card } from '@/components/Card';
 import { InputField } from '@/components/InputField';
 import { GradientButton } from '@/components/GradientButton';
 

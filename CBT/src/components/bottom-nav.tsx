@@ -21,13 +21,15 @@ import {
   ViewStyle,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /* ----------------------------- Warna ----------------------------- */
 const C = {
   active: '#2276ED',
   inactive: '#94A3B8',
   pill: '#EAF2FF',
-  bar: 'rgba(255,255,255,0.92)',
+  // Android: bayangan (elevation) tembus ke warna transparan -> tampak abu-abu, jadi dibuat solid
+  bar: Platform.OS === 'android' ? '#FFFFFF' : 'rgba(255,255,255,0.92)',
   border: 'rgba(255,255,255,0.95)',
 };
 
@@ -114,7 +116,7 @@ const ProfileIcon = ({ color }: IconProps) => (
 );
 
 /* ------------------------------ Data ----------------------------- */
-export type NavKey = 'home' | 'ujian' | 'tugas' | 'nilai' | 'profil';
+export type NavKey = 'home' | 'ujian' | 'tugas' | 'statistik' | 'profile';
 
 type NavItem = {
   key: NavKey;
@@ -129,8 +131,8 @@ export const NAV_ITEMS: NavItem[] = [
   { key: 'home', label: 'Home', route: 'home-dashboard', Icon: HomeIcon },
   { key: 'ujian', label: 'Ujian', route: 'ujian-list', Icon: ExamIcon },
   { key: 'tugas', label: 'Tugas', route: 'tugas', Icon: TaskIcon },
-  { key: 'nilai', label: 'Nilai', route: 'nilai', Icon: ChartIcon },
-  { key: 'profil', label: 'Profil', route: 'profil', Icon: ProfileIcon },
+  { key: 'statistik', label: 'Statistik', route: 'statistik', Icon: ChartIcon },
+  { key: 'profile', label: 'Profile', route: 'profile', Icon: ProfileIcon },
 ];
 
 /* --------------------------- Komponen ---------------------------- */
@@ -151,6 +153,10 @@ export function BottomNav({ active, onChange, bottomOffset, style }: BottomNavPr
     0,
     NAV_ITEMS.findIndex((i) => i.key === active),
   );
+
+  // Android: naik di atas tombol / bar gesture sistem
+  const insets = useSafeAreaInsets();
+  const bottom = bottomOffset ?? (Platform.OS === 'ios' ? 28 : insets.bottom + 16);
 
   const [slotW, setSlotW] = useState(0);
   const x = useRef(new Animated.Value(0)).current;
@@ -226,7 +232,7 @@ export function BottomNav({ active, onChange, bottomOffset, style }: BottomNavPr
     <View
       style={[
         styles.bar,
-        { bottom: bottomOffset ?? (Platform.OS === 'ios' ? 28 : 24) },
+        { bottom },
         style,
       ]}
       {...pan.panHandlers}

@@ -3,8 +3,10 @@
 // Alur: index -> splash -> login -> verification -> home-dashboard <-> ujian-list
 //       (kalau login salah: verification -> login-error -> login)
 // Navbar HANYA muncul di halaman yang ada di NAV_ITEMS (components/bottom-nav.tsx):
-// home-dashboard, ujian-list (+ tugas, nilai, profil kalau nanti dibuat).
-// Di index, splash, login, dan verification navbar otomatis disembunyikan.
+// home-dashboard, ujian-list, tugas, statistik, profile.
+// Di splash, login, verification, detail-ujian, dll. navbar otomatis disembunyikan.
+// Setiap file di src/app yang mau dipakai HARUS dideklarasikan di <Tabs.Screen> di bawah,
+// dan namanya harus sama dengan nama file (tanpa .tsx).
 
 import React from 'react';
 import { Tabs, useRouter } from 'expo-router';
@@ -42,17 +44,26 @@ export default function RootLayout() {
       screenOptions={{ headerShown: false }}
       backBehavior="none"
     >
+      {/* Alur masuk (tanpa navbar) */}
       <Tabs.Screen name="index" />
       <Tabs.Screen name="splash" />
       <Tabs.Screen name="login" />
       <Tabs.Screen name="verification" />
       <Tabs.Screen name="login-error" />
+
+      {/* Halaman utama (navbar muncul, ada di NAV_ITEMS) */}
       <Tabs.Screen name="home-dashboard" />
       <Tabs.Screen name="ujian-list" />
-      {/* Aktifkan setelah file-nya dibuat di src/app:
       <Tabs.Screen name="tugas" />
-      <Tabs.Screen name="nilai" />
-      <Tabs.Screen name="profil" /> */}
+      <Tabs.Screen name="statistik" />
+      <Tabs.Screen name="profile" />
+
+      {/* Halaman lain (tanpa navbar karena tidak ada di NAV_ITEMS) */}
+      <Tabs.Screen name="detail-ujian" />
+      <Tabs.Screen name="token-ujian" />
+      <Tabs.Screen name="exam-readiness" />
+      <Tabs.Screen name="exam-lock-timeline" />
+      <Tabs.Screen name="riwayat" />
     </Tabs>
   );
 }

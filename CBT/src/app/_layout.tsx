@@ -61,6 +61,11 @@ export default function RootLayout() {
         {/* Dashboard guru & admin (tanpa navbar) */}
         <Tabs.Screen name="dashboard-guru" />
         <Tabs.Screen name="dashboard-admin" />
+        <Tabs.Screen name="kelola-akun" />
+        <Tabs.Screen name="kelola-ujian" />
+        <Tabs.Screen name="kelas-mapel" />
+        <Tabs.Screen name="sinkronisasi" />
+        <Tabs.Screen name="laporan" />
 
         {/* Halaman lain (tanpa navbar karena tidak ada di NAV_ITEMS) */}
         <Tabs.Screen name="detail-ujian" />

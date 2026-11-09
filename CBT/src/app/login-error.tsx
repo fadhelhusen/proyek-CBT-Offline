@@ -8,7 +8,7 @@ import { GradientButton } from '@/components/GradientButton';
 export default function LoginErrorScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" />
 
       <View style={StyleSheet.absoluteFill}>
         <View style={styles.bgLight} />
@@ -39,7 +39,7 @@ export default function LoginErrorScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: '#F8FAFC' },
-  bgLight: { ...StyleSheet.absoluteFillObject, backgroundColor: '#F8FAFC' },
+  bgLight: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#F8FAFC' },
   blob1: { position: 'absolute', top: -50, left: -100, width: 350, height: 350, borderRadius: 175, backgroundColor: '#DDEBFF', opacity: 0.6 },
   blob2: { position: 'absolute', top: 200, right: -100, width: 300, height: 300, borderRadius: 150, backgroundColor: '#E5F2FF', opacity: 0.6 },
   cardLayout: { maxWidth: 340, paddingHorizontal: 24, paddingVertical: 40, alignItems: 'center' },

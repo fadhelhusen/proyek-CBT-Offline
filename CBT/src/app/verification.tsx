@@ -5,9 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '@/components/Card';
+import { useAuth } from '@/context/auth-context';
+import { ROLE_HOME } from '@/constants/roles';
+
 
 export default function VerificationScreen() {
   const { nisn, password } = useLocalSearchParams<{ nisn: string; password: string; }>();
+  const { login } = useAuth();
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -17,23 +21,20 @@ export default function VerificationScreen() {
       useNativeDriver: false,
     }).start();
 
-    const timer = setTimeout(() => {
-      const valid = nisn === '2488010000' && password === 'siswa123';
-    if (valid) {
-      router.replace('/dashboard');
-    } else {
-      router.replace('/login-error');
-    }
-    }, 2200);
+    const t = setTimeout(async () => {
+      const user = await login(nisn ?? '', password ?? '');
+      if (user) router.replace(ROLE_HOME[user.role]);
+      else router.replace('/login-error');
+    }, 1200);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, [nisn, password]);
 
   const progressWidth = progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" />
       
       <View style={StyleSheet.absoluteFill}>
         <View style={styles.bgLight} />
@@ -63,7 +64,7 @@ export default function VerificationScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: '#F8FAFC' },
-  bgLight: { ...StyleSheet.absoluteFillObject, backgroundColor: '#F8FAFC' },
+  bgLight: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#F8FAFC' },
   blob1: { position: 'absolute', top: -50, left: -100, width: 350, height: 350, borderRadius: 175, backgroundColor: '#DDEBFF', opacity: 0.6 },
   blob2: { position: 'absolute', top: 200, right: -100, width: 300, height: 300, borderRadius: 150, backgroundColor: '#E5F2FF', opacity: 0.6 },
   cardLayout: { maxWidth: 340, alignItems: 'center', paddingHorizontal: 24, paddingVertical: 40 },

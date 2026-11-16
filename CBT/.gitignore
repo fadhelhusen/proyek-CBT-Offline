@@ -1,7 +1,23 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Environment variables
+CBT/.env
+CBT/.env.*
+!CBT/.env.example
 
-# dependencies
+# Backup
+CBT-backup/
+
+# Temporary files
+CBT/package.json.backup
+CBT/package.json.* 
+
+# Dependencies
 node_modules/
+CBT/node_modules/
+
+# Build
+dist/
+.expo/
 
 # Expo
 .expo/

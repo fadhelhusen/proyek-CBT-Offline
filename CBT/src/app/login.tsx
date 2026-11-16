@@ -45,14 +45,14 @@ export default function LoginScreen() {
           
           <View style={styles.heading}>
             <Text style={styles.title}>Selamat Datang</Text>
-            <Text style={styles.subtitle}>Masuk menggunakan akun siswa{'\n'}kamu</Text>
+            <Text style={styles.subtitle}>Masuk menggunakan akun{'\n'}kamu</Text>
           </View>
 
           <Card style={styles.cardPadding}>
             <InputField
               label="NISN / Username"
               placeholder="Masukkan NISN"
-              keyboardType="numeric"
+              keyboardType="default"
               value={nisn}
               onChangeText={(val) => { setNisn(val); setErrors(prev => ({ ...prev, nisn: '' })); }}
               error={errors.nisn}

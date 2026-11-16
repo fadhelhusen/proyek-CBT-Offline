@@ -5,9 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '@/components/Card';
+import { useAuth } from '@/context/auth-context';
+import { ROLE_HOME } from '@/constants/roles';
+
 
 export default function VerificationScreen() {
   const { nisn, password } = useLocalSearchParams<{ nisn: string; password: string; }>();
+  const { login } = useAuth();
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -17,16 +21,13 @@ export default function VerificationScreen() {
       useNativeDriver: false,
     }).start();
 
-    const timer = setTimeout(() => {
-      const valid = nisn === '2488010000' && password === 'siswa123';
-      if (valid) {
-        router.replace('/home-dashboard');
-      } else {
-        router.replace('/login-error');
-      }
-    }, 2200);
+    const t = setTimeout(async () => {
+      const user = await login(nisn ?? '', password ?? '');
+      if (user) router.replace(ROLE_HOME[user.role]);
+      else router.replace('/login-error');
+    }, 1200);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, [nisn, password]);
 
   const progressWidth = progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });

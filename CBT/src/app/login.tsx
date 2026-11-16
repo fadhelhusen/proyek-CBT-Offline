@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Sesuaikan path import dengan struktur folder Anda
 // (nama file harus persis sama huruf besar/kecilnya: card.tsx -> '@/components/card')
-import { Card } from '@/components/Card';
+import { Card } from '@/components/card';
 import { InputField } from '@/components/InputField';
 import { GradientButton } from '@/components/GradientButton';
 
@@ -45,14 +45,14 @@ export default function LoginScreen() {
           
           <View style={styles.heading}>
             <Text style={styles.title}>Selamat Datang</Text>
-            <Text style={styles.subtitle}>Masuk menggunakan akun siswa{'\n'}kamu</Text>
+            <Text style={styles.subtitle}>Masuk menggunakan akun{'\n'}kamu</Text>
           </View>
 
           <Card style={styles.cardPadding}>
             <InputField
               label="NISN / Username"
               placeholder="Masukkan NISN"
-              keyboardType="numeric"
+              keyboardType="default"
               value={nisn}
               onChangeText={(val) => { setNisn(val); setErrors(prev => ({ ...prev, nisn: '' })); }}
               error={errors.nisn}

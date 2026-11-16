@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Card } from '@/components/Card';
+import { Card } from '@/components/card';
 import { useAuth } from '@/context/auth-context';
 import { ROLE_HOME } from '@/constants/roles';
 

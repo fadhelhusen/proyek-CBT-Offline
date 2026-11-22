@@ -10,9 +10,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
+import { useAuth } from '@/context/auth-context';
+import { ROLE_HOME } from '@/constants/roles';
+import { debugLog } from '@/lib/debug';
+
 export default function SplashScreenPage() {
   const progress = useRef(new Animated.Value(0)).current;
+  const { user, initializing } = useAuth();
 
+  // Animasi progress bar.
   useEffect(() => {
     const animation = Animated.timing(progress, {
       toValue: 1,
@@ -22,15 +28,34 @@ export default function SplashScreenPage() {
 
     animation.start();
 
-    const timer = setTimeout(() => {
-      router.replace('/login');
-    }, 3000);
-
     return () => {
-      clearTimeout(timer);
       animation.stop();
     };
   }, [progress]);
+
+  // [DEBUG-SEMENTARA] hapus setelah masalah ketemu
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      debugLog('SPLASH tampil di ' + window.location.href);
+    }
+  }, []);
+
+  // Setelah pemulihan sesi selesai: jika sudah login arahkan ke
+  // dashboard sesuai peran, jika belum arahkan ke login.
+  // Hanya sekali, karena <Tabs> tidak melepas layar splash dari memori.
+  const sudahPindah = useRef(false);
+
+  useEffect(() => {
+    if (initializing || sudahPindah.current) return;
+
+    const timer = setTimeout(() => {
+      sudahPindah.current = true;
+      debugLog('SPLASH pindah ke ' + (user ? ROLE_HOME[user.role] : '/login') + ' (user=' + (user?.role ?? 'null') + ')');
+      router.replace(user ? ROLE_HOME[user.role] : '/login');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [initializing, user]);
 
   const progressWidth = progress.interpolate({
     inputRange: [0, 1],

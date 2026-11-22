@@ -33,7 +33,8 @@ function Baris({ label, nilai }: { label: string; nilai: number }) {
 }
 
 export default function Sinkronisasi() {
-  const { user, kredensial } = useAuth();
+  const { user, initializing } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [status, setStatus] = useState<Status>('cek');
   const [ms, setMs] = useState<number | null>(null);
   const [terakhir, setTerakhir] = useState<string>('');
@@ -41,16 +42,16 @@ export default function Sinkronisasi() {
   const [h, setH] = useState<Hitung>(KOSONG);
 
   const cek = useCallback(async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     setStatus('cek');
     setGalat('');
     const mulai = Date.now();
     try {
       const [akun, ujian, kelas, mapel] = await Promise.all([
-        adminListAkun(kredensial),
-        adminListUjian(kredensial),
-        adminListRef(kredensial, 'kelas'),
-        adminListRef(kredensial, 'mapel'),
+        adminListAkun(),
+        adminListUjian(),
+        adminListRef('kelas'),
+        adminListRef('mapel'),
       ]);
       setH({
         siswa: akun.filter((a) => a.role === 'siswa').length,
@@ -76,11 +77,18 @@ export default function Sinkronisasi() {
           ', ' + n.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       );
     }
-  }, [kredensial]);
+  }, [isAdmin]);
 
   useFocusEffect(useCallback(() => { cek(); }, [cek]));
 
-  if (user?.role !== 'admin' || !kredensial) {
+  if (initializing) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}><ActivityIndicator color="#2575FC" /></View>
+      </SafeAreaView>
+    );
+  }
+  if (!isAdmin) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>

@@ -35,6 +35,7 @@ export type Akun = {
   role: Role;
   kelas?: string | null;
   mapel?: string | null;
+  email?: string | null;
 };
 
 export type AkunInput = {
@@ -43,9 +44,9 @@ export type AkunInput = {
   role: Role;
   kelas: string | null;
   mapel: string | null;
+  email: string | null;
 };
 
-export type Kredensial = { username: string; password: string };
 
 /* ---------- CRUD ujian ---------- */
 export type UjianAdmin = Ujian & { guruNama: string };

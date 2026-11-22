@@ -76,7 +76,8 @@ function AkunRow({ a, onPress }: { a: Akun; onPress: () => void }) {
 
 /* ---------- halaman ---------- */
 export default function DashboardAdmin() {
-  const { user, kredensial, logout } = useAuth();
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [r, setR] = useState<RingkasanAdmin>({ siswa: 0, guru: 0, kelas: 0, terjadwal: 0 });
   const [ujian, setUjian] = useState<Ujian[]>([]);
   const [akun, setAkun] = useState<Akun[]>([]);
@@ -89,12 +90,12 @@ export default function DashboardAdmin() {
         const [ringkasan, terbaru, daftar] = await Promise.all([
           ringkasanAdmin(),
           ujianTerbaru(5),
-          kredensial ? adminListAkun(kredensial).catch(() => [] as Akun[]) : Promise.resolve([] as Akun[]),
+          isAdmin ? adminListAkun().catch(() => [] as Akun[]) : Promise.resolve([] as Akun[]),
         ]);
         if (!batal) { setR(ringkasan); setUjian(terbaru); setAkun(daftar); setMemuat(false); }
       })();
       return () => { batal = true; };
-    }, [kredensial]),
+    }, [isAdmin]),
   );
 
   const soon = (name: string) => () => console.log(`${name} dipilih`);

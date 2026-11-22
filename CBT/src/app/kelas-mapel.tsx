@@ -1,13 +1,14 @@
 // Kelas & mapel (CRUD) — khusus admin.
 import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform,
+  ActivityIndicator, KeyboardAvoidingView, Modal, Platform,
   Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useAuth } from '@/context/auth-context';
+import { konfirmasiHapus as konfirmasiHapusDialog, tampilkanGalat } from '@/lib/dialog';
 import { adminHapusRef, adminListRef, adminTambahRef, adminUbahRef } from '@/services/api';
 import type { JenisRef, Referensi } from '@/data/types';
 import { InputField } from '@/components/InputField';
@@ -21,7 +22,8 @@ const TAB: { key: JenisRef; label: string; contoh: string }[] = [
 ];
 
 export default function KelasMapel() {
-  const { user, kredensial } = useAuth();
+  const { user, initializing } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [jenis, setJenis] = useState<JenisRef>('kelas');
   const [daftar, setDaftar] = useState<Referensi[]>([]);
   const [memuat, setMemuat] = useState(true);
@@ -37,17 +39,17 @@ export default function KelasMapel() {
   const info = TAB.find((t) => t.key === jenis)!;
 
   const muat = useCallback(async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     setMemuat(true);
     try {
-      setDaftar(await adminListRef(kredensial, jenis));
+      setDaftar(await adminListRef(jenis));
       setGalat('');
     } catch (e) {
       setGalat(e instanceof Error ? e.message : 'Gagal memuat data.');
     } finally {
       setMemuat(false);
     }
-  }, [kredensial, jenis]);
+  }, [isAdmin, jenis]);
 
   useFocusEffect(useCallback(() => { muat(); }, [muat]));
 
@@ -59,12 +61,12 @@ export default function KelasMapel() {
   };
 
   const simpan = async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     if (!nama.trim()) { setErrNama('Nama wajib diisi.'); return; }
     setMenyimpan(true);
     try {
-      if (editing) await adminUbahRef(kredensial, editing.id, nama.trim());
-      else await adminTambahRef(kredensial, jenis, nama.trim());
+      if (editing) await adminUbahRef(editing.id, nama.trim());
+      else await adminTambahRef(jenis, nama.trim());
       setModal(false);
       await muat();
     } catch (err) {
@@ -75,24 +77,25 @@ export default function KelasMapel() {
   };
 
   const konfirmasiHapus = (r: Referensi) => {
-    Alert.alert('Hapus', `Hapus "${r.nama}"?`, [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus', style: 'destructive',
-        onPress: async () => {
-          if (!kredensial) return;
-          try {
-            await adminHapusRef(kredensial, r.id);
-            await muat();
-          } catch (err) {
-            Alert.alert('Gagal menghapus', err instanceof Error ? err.message : 'Terjadi kesalahan.');
-          }
-        },
-      },
-    ]);
+    konfirmasiHapusDialog('Hapus', `Hapus "${r.nama}"?`, async () => {
+      if (!isAdmin) return;
+      try {
+        await adminHapusRef(r.id);
+        await muat();
+      } catch (err) {
+        tampilkanGalat('Gagal menghapus', err instanceof Error ? err.message : 'Terjadi kesalahan.');
+      }
+    });
   };
 
-  if (user?.role !== 'admin' || !kredensial) {
+  if (initializing) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}><ActivityIndicator color="#2575FC" /></View>
+      </SafeAreaView>
+    );
+  }
+  if (!isAdmin) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>

@@ -13,16 +13,12 @@ import {
 import { supabase } from '@/lib/supabase';
 import { debugLog } from '@/lib/debug';
 import { oauthBoot } from '@/lib/oauth-return';
-import type {
-  Kredensial,
-  SessionUser,
-} from '@/data/types';
+import type { SessionUser } from '@/data/types';
 
 type OAuthStatus = 'idle' | 'loading' | 'success' | 'error';
 
 type AuthContextType = {
   user: SessionUser | null;
-  kredensial: Kredensial | null;
   // true selama aplikasi masih memulihkan sesi / memproses login Google.
   initializing: boolean;
   oauthStatus: OAuthStatus;
@@ -34,7 +30,6 @@ type AuthContextType = {
   loginWithGoogle: () => Promise<void>;
   completeOAuthLogin: (code: string) => Promise<SessionUser>;
   logout: () => Promise<void>;
-  perbaruiKredensial: (data: Partial<Kredensial>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,25 +40,24 @@ export function AuthProvider({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<SessionUser | null>(null);
-  const [kredensial, setKredensial] = useState<Kredensial | null>(null);
   const [initializing, setInitializing] = useState(true);
   const [oauthStatus, setOAuthStatus] = useState<OAuthStatus>('idle');
   const [oauthError, setOAuthError] = useState<string | null>(null);
 
-  // Login siswa menggunakan username dan password.
+  // Login username/password HANYA untuk siswa (NISN).
+  // Guru dan admin wajib masuk lewat Google (loginWithGoogle).
   const login = async (
     username: string,
     password: string
   ): Promise<SessionUser | null> => {
     const found = await loginUser(username, password);
 
-    setUser(found);
-    setKredensial(
-      found?.role === 'admin'
-        ? { username: username.trim(), password }
-        : null
-    );
+    if (!found || found.role !== 'siswa') {
+      setUser(null);
+      return null;
+    }
 
+    setUser(found);
     return found;
   };
 
@@ -142,7 +136,6 @@ export function AuthProvider({
       }
 
       setUser(profile);
-      setKredensial(null);
       setOAuthStatus('success');
 
       return profile;
@@ -150,7 +143,6 @@ export function AuthProvider({
       await supabase.auth.signOut();
 
       setUser(null);
-      setKredensial(null);
       setOAuthStatus('error');
 
       const message =
@@ -173,15 +165,8 @@ export function AuthProvider({
     }
 
     setUser(null);
-    setKredensial(null);
     setOAuthStatus('idle');
     setOAuthError(null);
-  };
-
-  const perbaruiKredensial = (
-    data: Partial<Kredensial>
-  ) => {
-    setKredensial((k) => (k ? { ...k, ...data } : k));
   };
 
   // Pulihkan sesi Google (guru/admin) yang tersimpan di localStorage,
@@ -279,7 +264,6 @@ export function AuthProvider({
     <AuthContext.Provider
       value={{
         user,
-        kredensial,
         initializing,
         oauthStatus,
         oauthError,
@@ -287,7 +271,6 @@ export function AuthProvider({
         loginWithGoogle,
         completeOAuthLogin,
         logout,
-        perbaruiKredensial,
       }}
     >
       {children}

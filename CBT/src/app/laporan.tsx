@@ -59,17 +59,18 @@ function Kartu({ judul, items, color }: { judul: string; items: Item[]; color?: 
 }
 
 export default function Laporan() {
-  const { user, kredensial } = useAuth();
+  const { user, initializing } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [akun, setAkun] = useState<Akun[]>([]);
   const [ujian, setUjian] = useState<UjianAdmin[]>([]);
   const [memuat, setMemuat] = useState(true);
   const [galat, setGalat] = useState('');
 
   const muat = useCallback(async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     setMemuat(true);
     try {
-      const [a, u] = await Promise.all([adminListAkun(kredensial), adminListUjian(kredensial)]);
+      const [a, u] = await Promise.all([adminListAkun(), adminListUjian()]);
       setAkun(a);
       setUjian(u);
       setGalat('');
@@ -78,7 +79,7 @@ export default function Laporan() {
     } finally {
       setMemuat(false);
     }
-  }, [kredensial]);
+  }, [isAdmin]);
 
   useFocusEffect(useCallback(() => { muat(); }, [muat]));
 
@@ -113,7 +114,14 @@ export default function Laporan() {
     }
   };
 
-  if (user?.role !== 'admin' || !kredensial) {
+  if (initializing) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}><ActivityIndicator color="#2575FC" /></View>
+      </SafeAreaView>
+    );
+  }
+  if (!isAdmin) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>

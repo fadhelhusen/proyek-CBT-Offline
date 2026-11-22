@@ -4,7 +4,6 @@ import type {
   Akun,
   AkunInput,
   JenisRef,
-  Kredensial,
   Referensi,
   RingkasanAdmin,
   SessionUser,
@@ -120,12 +119,11 @@ export async function ringkasanAdmin(): Promise<RingkasanAdmin> {
 }
 
 // ---------- CRUD AKUN (KHUSUS ADMIN) ----------
+// Otorisasi dilakukan di database lewat sesi Google (auth.uid()),
+// jadi tidak ada username/password admin yang dikirim dari aplikasi.
 
-export async function adminListAkun(k: Kredensial): Promise<Akun[]> {
-  const { data, error } = await supabase.rpc('admin_list_users', {
-    p_admin: k.username,
-    p_pass: k.password,
-  });
+export async function adminListAkun(): Promise<Akun[]> {
+  const { data, error } = await supabase.rpc('admin_list_users');
 
   if (error) throw new Error(error.message);
 
@@ -133,33 +131,28 @@ export async function adminListAkun(k: Kredensial): Promise<Akun[]> {
 }
 
 export async function adminTambahAkun(
-  k: Kredensial,
   a: AkunInput,
   password: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_create_user', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_username: a.username,
     p_password: password,
     p_nama: a.nama,
     p_role: a.role,
     p_kelas: a.kelas,
     p_mapel: a.mapel,
+    p_email: a.email,
   });
 
   if (error) throw new Error(error.message);
 }
 
 export async function adminUbahAkun(
-  k: Kredensial,
   id: string,
   a: AkunInput,
   passwordBaru?: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_update_user', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_id: id,
     p_username: a.username,
     p_nama: a.nama,
@@ -167,18 +160,16 @@ export async function adminUbahAkun(
     p_kelas: a.kelas,
     p_mapel: a.mapel,
     p_password_baru: passwordBaru ?? null,
+    p_email: a.email,
   });
 
   if (error) throw new Error(error.message);
 }
 
 export async function adminHapusAkun(
-  k: Kredensial,
   id: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_delete_user', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_id: id,
   });
 
@@ -191,11 +182,8 @@ type UjianAdminRow = UjianRow & {
   guru_nama: string;
 };
 
-export async function adminListUjian(k: Kredensial): Promise<UjianAdmin[]> {
-  const { data, error } = await supabase.rpc('admin_list_ujian', {
-    p_admin: k.username,
-    p_pass: k.password,
-  });
+export async function adminListUjian(): Promise<UjianAdmin[]> {
+  const { data, error } = await supabase.rpc('admin_list_ujian');
 
   if (error) throw new Error(error.message);
 
@@ -206,12 +194,9 @@ export async function adminListUjian(k: Kredensial): Promise<UjianAdmin[]> {
 }
 
 export async function adminTambahUjian(
-  k: Kredensial,
   u: UjianInput
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_create_ujian', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_judul: u.judul,
     p_mapel: u.mapel,
     p_kelas: u.kelas,
@@ -223,13 +208,10 @@ export async function adminTambahUjian(
 }
 
 export async function adminUbahUjian(
-  k: Kredensial,
   id: string,
   u: UjianInput
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_update_ujian', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_id: id,
     p_judul: u.judul,
     p_mapel: u.mapel,
@@ -242,12 +224,9 @@ export async function adminUbahUjian(
 }
 
 export async function adminHapusUjian(
-  k: Kredensial,
   id: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_delete_ujian', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_id: id,
   });
 
@@ -257,12 +236,9 @@ export async function adminHapusUjian(
 // ---------- KELAS & MAPEL (KHUSUS ADMIN) ----------
 
 export async function adminListRef(
-  k: Kredensial,
   jenis: JenisRef
 ): Promise<Referensi[]> {
   const { data, error } = await supabase.rpc('admin_list_referensi', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_jenis: jenis,
   });
 
@@ -272,13 +248,10 @@ export async function adminListRef(
 }
 
 export async function adminTambahRef(
-  k: Kredensial,
   jenis: JenisRef,
   nama: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_create_referensi', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_jenis: jenis,
     p_nama: nama,
   });
@@ -287,13 +260,10 @@ export async function adminTambahRef(
 }
 
 export async function adminUbahRef(
-  k: Kredensial,
   id: string,
   nama: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_update_referensi', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_id: id,
     p_nama: nama,
   });
@@ -302,12 +272,9 @@ export async function adminUbahRef(
 }
 
 export async function adminHapusRef(
-  k: Kredensial,
   id: string
 ): Promise<void> {
   const { error } = await supabase.rpc('admin_delete_referensi', {
-    p_admin: k.username,
-    p_pass: k.password,
     p_id: id,
   });
 

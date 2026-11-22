@@ -1,13 +1,14 @@
 // Kelola ujian (CRUD) — khusus admin.
 import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform,
+  ActivityIndicator, KeyboardAvoidingView, Modal, Platform,
   Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useAuth } from '@/context/auth-context';
+import { konfirmasiHapus as konfirmasiHapusDialog, tampilkanGalat } from '@/lib/dialog';
 import {
   adminHapusUjian, adminListAkun, adminListUjian, adminTambahUjian, adminUbahUjian,
 } from '@/services/api';
@@ -29,7 +30,8 @@ const STATUS: { key: UjianStatus; label: string; color: string }[] = [
 const warna = (s: UjianStatus) => STATUS.find((x) => x.key === s)!.color;
 
 export default function KelolaUjian() {
-  const { user, kredensial } = useAuth();
+  const { user, initializing } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [daftar, setDaftar] = useState<UjianAdmin[]>([]);
   const [guru, setGuru] = useState<Akun[]>([]);
   const [memuat, setMemuat] = useState(true);
@@ -44,10 +46,10 @@ export default function KelolaUjian() {
   const [menyimpan, setMenyimpan] = useState(false);
 
   const muat = useCallback(async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     setMemuat(true);
     try {
-      const [u, akun] = await Promise.all([adminListUjian(kredensial), adminListAkun(kredensial)]);
+      const [u, akun] = await Promise.all([adminListUjian(), adminListAkun()]);
       setDaftar(u);
       setGuru(akun.filter((a) => a.role === 'guru'));
       setGalat('');
@@ -56,7 +58,7 @@ export default function KelolaUjian() {
     } finally {
       setMemuat(false);
     }
-  }, [kredensial]);
+  }, [isAdmin]);
 
   useFocusEffect(useCallback(() => { muat(); }, [muat]));
 
@@ -93,7 +95,7 @@ export default function KelolaUjian() {
   };
 
   const simpan = async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     const e = validasi();
     setErrors(e);
     if (Object.values(e).some(Boolean)) return;
@@ -104,8 +106,8 @@ export default function KelolaUjian() {
     };
     setMenyimpan(true);
     try {
-      if (editing) await adminUbahUjian(kredensial, editing.id, payload);
-      else await adminTambahUjian(kredensial, payload);
+      if (editing) await adminUbahUjian(editing.id, payload);
+      else await adminTambahUjian(payload);
       setModal(false);
       await muat();
     } catch (err) {
@@ -116,24 +118,25 @@ export default function KelolaUjian() {
   };
 
   const konfirmasiHapus = (u: UjianAdmin) => {
-    Alert.alert('Hapus ujian', `Hapus ujian "${u.judul}"?`, [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus', style: 'destructive',
-        onPress: async () => {
-          if (!kredensial) return;
-          try {
-            await adminHapusUjian(kredensial, u.id);
-            await muat();
-          } catch (err) {
-            Alert.alert('Gagal menghapus', err instanceof Error ? err.message : 'Terjadi kesalahan.');
-          }
-        },
-      },
-    ]);
+    konfirmasiHapusDialog('Hapus ujian', `Hapus ujian "${u.judul}"?`, async () => {
+      if (!isAdmin) return;
+      try {
+        await adminHapusUjian(u.id);
+        await muat();
+      } catch (err) {
+        tampilkanGalat('Gagal menghapus', err instanceof Error ? err.message : 'Terjadi kesalahan.');
+      }
+    });
   };
 
-  if (user?.role !== 'admin' || !kredensial) {
+  if (initializing) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}><ActivityIndicator color="#2575FC" /></View>
+      </SafeAreaView>
+    );
+  }
+  if (!isAdmin) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>

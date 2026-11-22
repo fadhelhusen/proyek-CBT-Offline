@@ -1,13 +1,14 @@
 // Kelola akun (CRUD) — khusus admin.
 import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform,
+  ActivityIndicator, KeyboardAvoidingView, Modal, Platform,
   Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useAuth } from '@/context/auth-context';
+import { konfirmasiHapus as konfirmasiHapusDialog, tampilkanGalat } from '@/lib/dialog';
 import {
   adminHapusAkun, adminListAkun, adminTambahAkun, adminUbahAkun,
 } from '@/services/api';
@@ -18,10 +19,10 @@ import { GradientButton } from '@/components/GradientButton';
 import AppCard from '@/components/atoms/AppCard';
 import { COLORS } from '@/components/DashboardParts';
 
-type Form = { username: string; nama: string; role: Role; kelas: string; mapel: string; password: string };
+type Form = { email: string; username: string; nama: string; role: Role; kelas: string; mapel: string; password: string };
 type Errors = Partial<Record<keyof Form, string>>;
 
-const KOSONG: Form = { username: '', nama: '', role: 'siswa', kelas: '', mapel: '', password: '' };
+const KOSONG: Form = { email: '', username: '', nama: '', role: 'siswa', kelas: '', mapel: '', password: '' };
 const ROLES: { key: Role; label: string }[] = [
   { key: 'siswa', label: 'Siswa' },
   { key: 'guru', label: 'Guru' },
@@ -29,7 +30,8 @@ const ROLES: { key: Role; label: string }[] = [
 ];
 
 export default function KelolaAkun() {
-  const { user, kredensial, perbaruiKredensial } = useAuth();
+  const { user, initializing } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const { tambah } = useLocalSearchParams<{ tambah?: string }>();
   const [akun, setAkun] = useState<Akun[]>([]);
   const [memuat, setMemuat] = useState(true);
@@ -44,17 +46,17 @@ export default function KelolaAkun() {
   const [menyimpan, setMenyimpan] = useState(false);
 
   const muat = useCallback(async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     setMemuat(true);
     try {
-      setAkun(await adminListAkun(kredensial));
+      setAkun(await adminListAkun());
       setGalat('');
     } catch (e) {
       setGalat(e instanceof Error ? e.message : 'Gagal memuat akun.');
     } finally {
       setMemuat(false);
     }
-  }, [kredensial]);
+  }, [isAdmin]);
 
   useFocusEffect(useCallback(() => { muat(); }, [muat]));
 
@@ -67,7 +69,7 @@ export default function KelolaAkun() {
   const bukaUbah = (a: Akun) => {
     setEditing(a);
     setForm({
-      username: a.username, nama: a.nama, role: a.role,
+      email: a.email ?? '', username: a.username, nama: a.nama, role: a.role,
       kelas: a.kelas ?? '', mapel: a.mapel ?? '', password: '',
     });
     setErrors({}); setPesan(''); setModal(true);
@@ -96,14 +98,17 @@ export default function KelolaAkun() {
     if (!form.nama.trim()) e.nama = 'Nama wajib diisi.';
     if (form.role === 'siswa' && !form.kelas.trim()) e.kelas = 'Kelas wajib diisi.';
     if (form.role === 'guru' && !form.mapel.trim()) e.mapel = 'Mapel wajib diisi.';
-    if (!editing && form.password.length < 6) e.password = 'Password minimal 6 karakter.';
-    if (editing && form.password && form.password.length < 6) e.password = 'Password minimal 6 karakter.';
+    if (form.role !== 'siswa' && !/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = 'Email Google wajib diisi dengan benar.';
+    if (form.role === 'siswa') {
+      if (!editing && form.password.length < 6) e.password = 'Password minimal 6 karakter.';
+      if (editing && form.password && form.password.length < 6) e.password = 'Password minimal 6 karakter.';
+    }
     return e;
   };
 
   /* ---------- simpan (tambah / ubah) ---------- */
   const simpan = async () => {
-    if (!kredensial) return;
+    if (!isAdmin) return;
     const e = validasi();
     setErrors(e);
     if (Object.values(e).some(Boolean)) return;
@@ -114,21 +119,15 @@ export default function KelolaAkun() {
       role: form.role,
       kelas: form.role === 'siswa' ? form.kelas.trim() : null,
       mapel: form.role === 'guru' ? form.mapel.trim() : null,
+      email: form.role === 'siswa' ? null : form.email.trim().toLowerCase(),
     };
 
     setMenyimpan(true);
     try {
       if (editing) {
-        await adminUbahAkun(kredensial, editing.id, payload, form.password || undefined);
-        // Admin mengubah akunnya sendiri: sinkronkan sesi supaya tidak "Akses ditolak"
-        if (editing.username === kredensial.username) {
-          perbaruiKredensial({
-            username: payload.username,
-            ...(form.password ? { password: form.password } : {}),
-          });
-        }
+        await adminUbahAkun(editing.id, payload, form.role === 'siswa' ? form.password || undefined : undefined);
       } else {
-        await adminTambahAkun(kredensial, payload, form.password);
+        await adminTambahAkun(payload, form.role === 'siswa' ? form.password : '');
       }
       setModal(false);
       await muat();
@@ -142,25 +141,26 @@ export default function KelolaAkun() {
   /* ---------- hapus ---------- */
   const konfirmasiHapus = (a: Akun) => {
     const catatan = a.role === 'guru' ? '\nUjian milik guru ini ikut terhapus.' : '';
-    Alert.alert('Hapus akun', `Hapus akun ${a.nama}?${catatan}`, [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus', style: 'destructive',
-        onPress: async () => {
-          if (!kredensial) return;
-          try {
-            await adminHapusAkun(kredensial, a.id);
-            await muat();
-          } catch (err) {
-            Alert.alert('Gagal menghapus', err instanceof Error ? err.message : 'Terjadi kesalahan.');
-          }
-        },
-      },
-    ]);
+    konfirmasiHapusDialog('Hapus akun', `Hapus akun ${a.nama}?${catatan}`, async () => {
+      if (!isAdmin) return;
+      try {
+        await adminHapusAkun(a.id);
+        await muat();
+      } catch (err) {
+        tampilkanGalat('Gagal menghapus', err instanceof Error ? err.message : 'Terjadi kesalahan.');
+      }
+    });
   };
 
   /* ---------- penjaga: khusus admin ---------- */
-  if (user?.role !== 'admin' || !kredensial) {
+  if (initializing) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}><ActivityIndicator color="#2575FC" /></View>
+      </SafeAreaView>
+    );
+  }
+  if (!isAdmin) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
@@ -282,14 +282,27 @@ export default function KelolaAkun() {
                     error={errors.mapel}
                   />
                 )}
-                <InputField
-                  label={editing ? 'Password baru (kosongkan bila tidak diubah)' : 'Password'}
-                  placeholder="Minimal 6 karakter"
-                  isPassword
-                  value={form.password}
-                  onChangeText={(v) => ubahField('password', v)}
-                  error={errors.password}
-                />
+                {form.role !== 'siswa' && (
+                  <InputField
+                    label="Email Google"
+                    placeholder="nama@gmail.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={form.email}
+                    onChangeText={(v) => ubahField('email', v)}
+                    error={errors.email}
+                  />
+                )}
+                {form.role === 'siswa' && (
+                  <InputField
+                    label={editing ? 'Password baru (kosongkan bila tidak diubah)' : 'Password'}
+                    placeholder="Minimal 6 karakter"
+                    isPassword
+                    value={form.password}
+                    onChangeText={(v) => ubahField('password', v)}
+                    error={errors.password}
+                  />
+                )}
 
                 {!!pesan && <Text style={styles.error}>{pesan}</Text>}
 
